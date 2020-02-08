@@ -2,16 +2,16 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart';
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-import 'package:html/dom.dart'; // Contains DOM related classes for extracting data from elements
 
-Future<Uint8List> getFirstImage(String keyword) async {
+Future<Uint8List> getFirstImage(String keyword, [int number = 0]) async {
   var client = Client();
   var response =
       await client.get('https://www.google.co.jp/search?q=${keyword}&tbm=isch');
   var document = parse(response.body);
-  var imgRes = await get(
-    document.querySelectorAll('img')[4].attributes['src']
-  );
+  var results = document
+      .querySelectorAll('img')
+      .where((img) => img.attributes['style'] != null).toList();
+  var imgRes = await get(results[number].attributes['src']);
   var bytes = imgRes.bodyBytes;
   return bytes;
 }
